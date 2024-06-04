@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-05-2024 a las 04:04:52
+-- Tiempo de generación: 05-06-2024 a las 01:42:16
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -20,14 +20,11 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `restaurante1`
 --
-CREATE DATABASE IF NOT EXISTS `restaurante1` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `restaurante1`;
 
 DELIMITER $$
 --
 -- Procedimientos
 --
-DROP PROCEDURE IF EXISTS `obtener_datos_pedido`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `obtener_datos_pedido` (IN `pedido` INT, IN `tipo_producto` VARCHAR(255))   BEGIN
     SELECT 
         m.Mesero, 
@@ -63,7 +60,6 @@ DELIMITER ;
 -- Estructura de tabla para la tabla `categorias_productos`
 --
 
-DROP TABLE IF EXISTS `categorias_productos`;
 CREATE TABLE `categorias_productos` (
   `Id` int(2) NOT NULL,
   `Categorias` varchar(17) DEFAULT NULL,
@@ -93,13 +89,7 @@ INSERT INTO `categorias_productos` (`Id`, `Categorias`, `Tipo`) VALUES
 -- Estructura Stand-in para la vista `datos_pedido_2`
 -- (Véase abajo para la vista actual)
 --
-DROP VIEW IF EXISTS `datos_pedido_2`;
 CREATE TABLE `datos_pedido_2` (
-`Mesero` varchar(9)
-,`Mesa` int(11)
-,`Productos` varchar(30)
-,`Precio` decimal(10,2)
-,`TotalFactura` decimal(32,2)
 );
 
 -- --------------------------------------------------------
@@ -108,7 +98,6 @@ CREATE TABLE `datos_pedido_2` (
 -- Estructura de tabla para la tabla `meseros`
 --
 
-DROP TABLE IF EXISTS `meseros`;
 CREATE TABLE `meseros` (
   `Id` int(1) NOT NULL,
   `Mesero` varchar(9) DEFAULT NULL
@@ -135,7 +124,6 @@ INSERT INTO `meseros` (`Id`, `Mesero`) VALUES
 -- Estructura de tabla para la tabla `ordenes`
 --
 
-DROP TABLE IF EXISTS `ordenes`;
 CREATE TABLE `ordenes` (
   `Orden` int(4) NOT NULL,
   `Fecha` date DEFAULT NULL,
@@ -2660,7 +2648,6 @@ INSERT INTO `ordenes` (`Orden`, `Fecha`, `Hora de Cobro`, `Mesa`, `Atendió`, `P
 -- Estructura de tabla para la tabla `ordenes_productos`
 --
 
-DROP TABLE IF EXISTS `ordenes_productos`;
 CREATE TABLE `ordenes_productos` (
   `id_orden` int(4) DEFAULT NULL,
   `id_productos` int(2) DEFAULT NULL
@@ -32815,7 +32802,6 @@ INSERT INTO `ordenes_productos` (`id_orden`, `id_productos`) VALUES
 -- Estructura de tabla para la tabla `productos`
 --
 
-DROP TABLE IF EXISTS `productos`;
 CREATE TABLE `productos` (
   `Id` int(2) NOT NULL,
   `Productos` varchar(30) DEFAULT NULL,
@@ -32913,7 +32899,6 @@ INSERT INTO `productos` (`Id`, `Productos`, `Precio`, `Costo`, `Categoría`) VAL
 -- Estructura de tabla para la tabla `tipo_cliente`
 --
 
-DROP TABLE IF EXISTS `tipo_cliente`;
 CREATE TABLE `tipo_cliente` (
   `Id` int(1) NOT NULL,
   `Tipo de cliente` varchar(16) DEFAULT NULL
@@ -32933,7 +32918,6 @@ INSERT INTO `tipo_cliente` (`Id`, `Tipo de cliente`) VALUES
 -- Estructura de tabla para la tabla `tipo_producto`
 --
 
-DROP TABLE IF EXISTS `tipo_producto`;
 CREATE TABLE `tipo_producto` (
   `Id` int(1) NOT NULL,
   `Tipo` varchar(6) DEFAULT NULL
@@ -32954,8 +32938,7 @@ INSERT INTO `tipo_producto` (`Id`, `Tipo`) VALUES
 --
 DROP TABLE IF EXISTS `datos_pedido_2`;
 
-DROP VIEW IF EXISTS `datos_pedido_2`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `datos_pedido_2`  AS SELECT `m`.`Mesero` AS `Mesero`, `o`.`Mesa` AS `Mesa`, `p`.`Productos` AS `Productos`, `p`.`Precio` AS `Precio`, NULL AS `TotalFactura` FROM (((`ordenes` `o` join `meseros` `m` on(`m`.`Id` = `o`.`Atendió`)) join `ordenes_productos` `op` on(`op`.`id_orden` = `o`.`Orden`)) join `productos` `p` on(`p`.`Id` = `op`.`id_productos`)) WHERE `o`.`Orden` = 199union allselect NULL AS `Mesero`,NULL AS `Mesa`,NULL AS `Productos`,NULL AS `Precio`,sum(`p`.`Precio`) AS `TotalFactura` from ((`ordenes` `o` join `ordenes_productos` `op` on(`op`.`id_orden` = `o`.`Orden`)) join `productos` `p` on(`p`.`Id` = `op`.`id_productos`)) where `o`.`Orden` = 2004  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `datos_pedido_2`  AS SELECT `ord`.`Orden` AS `Orden`, count(`pr`.`Productos`) AS `TOTAL PRODUCTOS`, sum(`pr`.`Precio`) AS `VALOR TOTAL PEDIDO`, `ord`.`Mesa` AS `Mesa`, `me`.`Mesero` AS `Mesero` FROM (((`restauranten`.`ordenes` `ord` join `restauranten`.`ordenes_productos` `op` on(`ord`.`Orden` = `op`.`id_orden`)) join `restauranten`.`productos` `pr` on(`op`.`id_productos` = `pr`.`Id`)) join `restauranten`.`meseros` `me` on(`ord`.`Atendió` = `me`.`Id`)) WHERE `ord`.`Orden` = 2004 ;
 
 --
 -- Índices para tablas volcadas
